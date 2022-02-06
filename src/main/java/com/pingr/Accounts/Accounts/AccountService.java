@@ -28,4 +28,28 @@ public class AccountService {
             throw new IllegalArgumentException("Account creation violates restrictions" + "[account: " + account + "]");
         }
     }
+
+    public void deleteAccount(Long id) {
+        Account acc = this.repo.getById(id);
+        this.repo.deleteById(id);
+        this.producer.emitAccountRemovedEvent(acc);
+    }
+
+    public void replaceAccount(Account newAccount, Long id) {
+        repo.findById(id)
+                .map(account -> {
+                    account.setUsername(newAccount.getUsername());
+                    account.setEmail(newAccount.getEmail());
+                    account.setPassword(newAccount.getPassword());
+                    Account acc = this.repo.save(account);
+                    this.producer.emitAccountUpdatedEvent(acc);
+                    return acc;
+                })
+                .orElseGet(() -> {
+                    newAccount.setId(id);
+                    Account acc = this.repo.save(newAccount);
+                    this.producer.emitAccountUpdatedEvent(acc);
+                    return acc;
+                });
+    }
 }

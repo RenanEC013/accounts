@@ -21,4 +21,16 @@ public class AccountController {
 
         return this.service.createAccount(account);
     }
+
+    @DeleteMapping("/accounts/{id}")
+    public void deleteAccount(@PathVariable Long id) {
+
+        this.service.deleteAccount(id);
+    }
+
+    @PutMapping("/accounts/{id}")
+    public void replaceAccount(@RequestBody Account newAccount, @PathVariable Long id) {
+
+        this.service.replaceAccount(newAccount, id);
+    }
 }
